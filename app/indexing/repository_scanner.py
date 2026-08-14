@@ -1,20 +1,14 @@
 from pathlib import Path
 
+from app.core.scanner_config import ScannerConfig
+
+
 class RepositoryScanner:
-    """
-    Responsible for discovering all files inside a repository.
-    """
+
+    def __init__(self, config: ScannerConfig | None = None):
+        self._config = config or ScannerConfig()
 
     def scan(self, repository_path: str) -> list[Path]:
-        """
-        Recursively scans a repository and returns all files.
-
-        Args:
-            repository_path: Path to the repository.
-
-        Returns:
-            List of file paths.
-        """
 
         root = Path(repository_path)
 
@@ -26,7 +20,24 @@ class RepositoryScanner:
         files = []
 
         for path in root.rglob("*"):
-            if path.is_file():
-                files.append(path)
+
+            if not path.is_file():
+                continue
+
+            if self._should_ignore(path):
+                continue
+
+            files.append(path)
 
         return sorted(files)
+
+    def _should_ignore(self, path: Path) -> bool:
+
+        if path.suffix.lower() in self._config.ignored_extensions:
+            return True
+
+        for part in path.parts:
+            if part in self._config.ignored_directories:
+                return True
+
+        return False
