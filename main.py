@@ -1,7 +1,17 @@
+from app.indexing.repository_scanner import RepositoryScanner
+
+
 def main():
-    print("AI Repository Assistant")
-    print("Phase 1 - Repository Understanding")
-    print("Project initialized successfully.")
+    scanner = RepositoryScanner()
+
+    repository_path = "repositories"
+
+    files = scanner.scan(repository_path)
+
+    print(f"\nDiscovered {len(files)} files:\n")
+
+    for file in files:
+        print(file)
 
 
 if __name__ == "__main__":
