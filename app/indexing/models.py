@@ -9,6 +9,9 @@ class RepositoryFile:
     """
 
     path: Path
+    language: str
+    size_bytes: int
+    line_count: int
 
     @property
     def name(self) -> str:

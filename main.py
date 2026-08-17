@@ -1,10 +1,22 @@
+from app.indexing.language_detector import LanguageDetector
+from app.indexing.metadata_extractor import FileMetadataExtractor
 from app.indexing.repository_indexer import RepositoryIndexer
 from app.indexing.repository_scanner import RepositoryScanner
 
 
 def main():
     scanner = RepositoryScanner()
-    indexer = RepositoryIndexer(scanner)
+
+    language_detector = LanguageDetector()
+
+    metadata_extractor = FileMetadataExtractor(
+        language_detector
+    )
+
+    indexer = RepositoryIndexer(
+        scanner,
+        metadata_extractor,
+    )
 
     repository = indexer.index("repositories")
 
@@ -12,7 +24,12 @@ def main():
     print(f"Files discovered: {len(repository.files)}\n")
 
     for file in repository.files:
-        print(f"{file.name} ({file.extension})")
+        print(
+            f"{file.path} | "
+            f"{file.language} | "
+            f"{file.size_bytes} bytes | "
+            f"{file.line_count} lines"
+        )
 
 
 if __name__ == "__main__":
