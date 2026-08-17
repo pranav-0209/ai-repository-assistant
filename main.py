@@ -1,17 +1,18 @@
+from app.indexing.repository_indexer import RepositoryIndexer
 from app.indexing.repository_scanner import RepositoryScanner
 
 
 def main():
     scanner = RepositoryScanner()
+    indexer = RepositoryIndexer(scanner)
 
-    repository_path = "repositories"
+    repository = indexer.index("repositories")
 
-    files = scanner.scan(repository_path)
+    print(f"\nRepository: {repository.path}")
+    print(f"Files discovered: {len(repository.files)}\n")
 
-    print(f"\nDiscovered {len(files)} files:\n")
-
-    for file in files:
-        print(file)
+    for file in repository.files:
+        print(f"{file.name} ({file.extension})")
 
 
 if __name__ == "__main__":
