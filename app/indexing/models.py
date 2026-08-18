@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
@@ -43,3 +43,16 @@ class RepositorySummary:
     total_size_bytes: int
     files_by_language: dict[str, int]
     largest_files: list[RepositoryFile]
+
+@dataclass(frozen=True)
+class ParsedSymbol:
+    name: str
+    symbol_type: str
+    line_start: int
+    line_end: int
+    parent: str | None = None
+
+
+@dataclass
+class ParsedCode:
+    symbols: list[ParsedSymbol] = field(default_factory=list)
