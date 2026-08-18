@@ -30,3 +30,16 @@ class Repository:
 
     path: Path
     files: list[RepositoryFile]
+
+
+@dataclass(frozen=True)
+class RepositorySummary:
+    """
+    Represents aggregated statistics about a repository.
+    """
+
+    total_files: int
+    total_lines: int
+    total_size_bytes: int
+    files_by_language: dict[str, int]
+    largest_files: list[RepositoryFile]

@@ -2,6 +2,10 @@ from app.indexing.language_detector import LanguageDetector
 from app.indexing.metadata_extractor import FileMetadataExtractor
 from app.indexing.repository_indexer import RepositoryIndexer
 from app.indexing.repository_scanner import RepositoryScanner
+from app.indexing.repository_summary import RepositorySummaryService
+from app.indexing.repository_summary_formatter import (
+    RepositorySummaryFormatter,
+)
 
 
 def main():
@@ -18,18 +22,15 @@ def main():
         metadata_extractor,
     )
 
-    repository = indexer.index("repositories")
+    repository = indexer.index("repositories/sample_project")
 
-    print(f"\nRepository: {repository.path}")
-    print(f"Files discovered: {len(repository.files)}\n")
+    summary_service = RepositorySummaryService()
 
-    for file in repository.files:
-        print(
-            f"{file.path} | "
-            f"{file.language} | "
-            f"{file.size_bytes} bytes | "
-            f"{file.line_count} lines"
-        )
+    summary = summary_service.summarize(repository)
+
+    formatter = RepositorySummaryFormatter()
+
+    print(formatter.format(repository, summary))
 
 
 if __name__ == "__main__":
