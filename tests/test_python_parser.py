@@ -1,11 +1,14 @@
 from app.parsing.python_parser import PythonCodeParser
 
 
-def test_python_parser_extracts_class_and_function():
+def test_python_parser_extracts_class_and_functions():
     source_code = """
 class UserService:
 
     def create_user(self):
+        pass
+
+    def delete_user(self):
         pass
 
 
@@ -17,13 +20,25 @@ def helper():
 
     result = parser.parse(source_code)
 
-    assert len(result.symbols) == 3
+    assert len(result.symbols) == 4
 
-    assert result.symbols[0].name == "UserService"
-    assert result.symbols[0].symbol_type == "class"
+    user_service = result.symbols[0]
+    create_user = result.symbols[1]
+    delete_user = result.symbols[2]
+    helper = result.symbols[3]
 
-    assert result.symbols[1].name == "create_user"
-    assert result.symbols[1].symbol_type == "function"
+    assert user_service.name == "UserService"
+    assert user_service.symbol_type == "class"
+    assert user_service.parent is None
 
-    assert result.symbols[2].name == "helper"
-    assert result.symbols[2].symbol_type == "function"
+    assert create_user.name == "create_user"
+    assert create_user.symbol_type == "method"
+    assert create_user.parent == "UserService"
+
+    assert delete_user.name == "delete_user"
+    assert delete_user.symbol_type == "method"
+    assert delete_user.parent == "UserService"
+
+    assert helper.name == "helper"
+    assert helper.symbol_type == "function"
+    assert helper.parent is None
