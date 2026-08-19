@@ -14,9 +14,11 @@ class RepositoryIndexer:
         self,
         scanner: RepositoryScanner,
         metadata_extractor: FileMetadataExtractor,
+        code_parsing_service,
     ):
         self._scanner = scanner
         self._metadata_extractor = metadata_extractor
+        self.code_parsing_service = code_parsing_service
 
     def index(self, repository_path: str) -> Repository:
         root = Path(repository_path)

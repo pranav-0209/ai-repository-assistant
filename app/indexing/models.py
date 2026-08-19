@@ -12,6 +12,7 @@ class RepositoryFile:
     language: str
     size_bytes: int
     line_count: int
+    parsed_code: ParsedCode | None = None
 
     @property
     def name(self) -> str:
