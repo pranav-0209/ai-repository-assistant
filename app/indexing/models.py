@@ -45,14 +45,28 @@ class RepositorySummary:
     largest_files: list[RepositoryFile]
 
 @dataclass(frozen=True)
+class ParsedDecorator:
+    name: str
+    arguments: str | None = None
+
+
+@dataclass(frozen=True)
 class ParsedSymbol:
     name: str
     symbol_type: str
     line_start: int
     line_end: int
     parent: str | None = None
+    decorators: tuple[ParsedDecorator, ...] = ()
+
+
+@dataclass(frozen=True)
+class ParsedInheritance:
+    child: str
+    parent: str
 
 
 @dataclass
 class ParsedCode:
     symbols: list[ParsedSymbol] = field(default_factory=list)
+    inheritances: list[ParsedInheritance] = field(default_factory=list)

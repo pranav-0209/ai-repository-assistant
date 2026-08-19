@@ -69,3 +69,53 @@ from utils.security import hash_password as hash
     assert imports[1].name == "numpy as np"
     assert imports[2].name == "repositories.user.UserRepository"
     assert imports[3].name == "utils.security.hash_password as hash"
+
+
+def test_python_parser_extracts_inheritance():
+    source_code = """
+class User:
+    pass
+
+
+class AdminUser(User):
+    pass
+"""
+
+    parser = PythonCodeParser()
+
+    result = parser.parse(source_code)
+
+    assert len(result.inheritances) == 1
+
+    inheritance = result.inheritances[0]
+
+    assert inheritance.child == "AdminUser"
+    assert inheritance.parent == "User"
+
+def test_python_parser_extracts_decorators():
+    source_code = """
+class UserService:
+
+    @staticmethod
+    def validate_token(token):
+        pass
+
+    @router.get("/users")
+    def get_users(self):
+        pass
+"""
+
+    parser = PythonCodeParser()
+
+    result = parser.parse(source_code)
+
+    validate_token = result.symbols[1]
+    get_users = result.symbols[2]
+
+    assert validate_token.name == "validate_token"
+    assert validate_token.decorators[0].name == "staticmethod"
+    assert validate_token.decorators[0].arguments is None
+
+    assert get_users.name == "get_users"
+    assert get_users.decorators[0].name == "router.get"
+    assert get_users.decorators[0].arguments == "'/users'"
