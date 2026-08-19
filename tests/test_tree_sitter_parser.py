@@ -5,7 +5,7 @@ from app.parsing.tree_sitter_code_parser import (
 )
 
 
-def test_java_parser_extracts_classes_methods_and_constructor():
+def test_java_parser_extracts_classes_methods_constructor_and_imports():
     source_path = Path("tests/fixtures/UserService.java")
 
     source_code = source_path.read_text(
@@ -16,20 +16,46 @@ def test_java_parser_extracts_classes_methods_and_constructor():
 
     result = parser.parse(source_code)
 
-    assert len(result.symbols) == 3
+    imports = [
+        symbol
+        for symbol in result.symbols
+        if symbol.symbol_type == "import"
+    ]
 
-    user_service = result.symbols[0]
-    constructor = result.symbols[1]
-    create_user = result.symbols[2]
+    classes = [
+        symbol
+        for symbol in result.symbols
+        if symbol.symbol_type == "class"
+    ]
 
-    assert user_service.name == "UserService"
-    assert user_service.symbol_type == "class"
-    assert user_service.parent is None
+    constructors = [
+        symbol
+        for symbol in result.symbols
+        if symbol.symbol_type == "constructor"
+    ]
 
-    assert constructor.name == "UserService"
-    assert constructor.symbol_type == "constructor"
-    assert constructor.parent == "UserService"
+    methods = [
+        symbol
+        for symbol in result.symbols
+        if symbol.symbol_type == "method"
+    ]
 
-    assert create_user.name == "createUser"
-    assert create_user.symbol_type == "method"
-    assert create_user.parent == "UserService"
+    assert len(imports) == 2
+    assert {
+        symbol.name
+        for symbol in imports
+    } == {
+        "repositories.UserRepository",
+        "java.util.List",
+    }
+
+    assert len(classes) == 1
+    assert classes[0].name == "UserService"
+
+    assert len(constructors) == 1
+    assert constructors[0].name == "UserService"
+    assert constructors[0].parent == "UserService"
+
+    assert len(methods) == 1
+    assert methods[0].name == "createUser"
+    assert methods[0].parent == "UserService"

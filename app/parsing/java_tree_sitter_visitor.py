@@ -22,8 +22,31 @@ class JavaTreeSitterVisitor:
             self._visit_constructor(node)
             return
 
+        if node.type == "import_declaration":
+            self._visit_import(node)
+            return
+
         for child in node.children:
             self.visit(child)
+
+    def _visit_import(self, node):
+        import_text = self._node_text(node)
+
+        import_name = (
+            import_text
+            .removeprefix("import ")
+            .removesuffix(";")
+            .strip()
+        )
+
+        self.symbols.append(
+            ParsedSymbol(
+                name=import_name,
+                symbol_type="import",
+                line_start=node.start_point.row + 1,
+                line_end=node.end_point.row + 1,
+            )
+        )
 
     def _visit_class(self, node):
         class_name_node = self._find_child_by_type(
