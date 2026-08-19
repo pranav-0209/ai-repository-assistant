@@ -42,3 +42,30 @@ def helper():
     assert helper.name == "helper"
     assert helper.symbol_type == "function"
     assert helper.parent is None
+
+
+def test_python_parser_extracts_imports():
+    source_code = """
+import jwt
+import numpy as np
+
+from repositories.user import UserRepository
+from utils.security import hash_password as hash
+"""
+
+    parser = PythonCodeParser()
+
+    result = parser.parse(source_code)
+
+    imports = [
+        symbol
+        for symbol in result.symbols
+        if symbol.symbol_type == "import"
+    ]
+
+    assert len(imports) == 4
+
+    assert imports[0].name == "jwt"
+    assert imports[1].name == "numpy as np"
+    assert imports[2].name == "repositories.user.UserRepository"
+    assert imports[3].name == "utils.security.hash_password as hash"

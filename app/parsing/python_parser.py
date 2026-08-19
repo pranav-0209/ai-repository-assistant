@@ -57,6 +57,44 @@ class PythonASTVisitor(ast.NodeVisitor):
 
         self.generic_visit(node)
 
+    def visit_Import(self, node: ast.Import):
+        for alias in node.names:
+            import_name = alias.name
+
+            if alias.asname:
+                import_name = f"{alias.name} as {alias.asname}"
+
+            self.symbols.append(
+                ParsedSymbol(
+                    name=import_name,
+                    symbol_type="import",
+                    line_start=node.lineno,
+                    line_end=node.end_lineno,
+                )
+            )
+
+        self.generic_visit(node)
+
+    def visit_ImportFrom(self, node: ast.ImportFrom):
+        module = node.module or ""
+
+        for alias in node.names:
+            import_name = f"{module}.{alias.name}" if module else alias.name
+
+            if alias.asname:
+                import_name = f"{import_name} as {alias.asname}"
+
+            self.symbols.append(
+                ParsedSymbol(
+                    name=import_name,
+                    symbol_type="import",
+                    line_start=node.lineno,
+                    line_end=node.end_lineno,
+                )
+            )
+
+        self.generic_visit(node)
+
 
 class PythonCodeParser(CodeParser):
 
