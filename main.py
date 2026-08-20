@@ -6,7 +6,7 @@ from app.indexing.repository_summary import RepositorySummaryService
 from app.indexing.repository_summary_formatter import (
     RepositorySummaryFormatter,
 )
-
+from app.parsing.code_parsing_service import CodeParsingService
 
 def main():
     scanner = RepositoryScanner()
@@ -17,9 +17,12 @@ def main():
         language_detector
     )
 
+    code_parsing_service = CodeParsingService()
+    
     indexer = RepositoryIndexer(
         scanner,
         metadata_extractor,
+        code_parsing_service,
     )
 
     repository = indexer.index("repositories/sample_project")
