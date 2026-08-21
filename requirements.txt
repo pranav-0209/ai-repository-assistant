@@ -1,3 +1,4 @@
 pytest
 tree-sitter
 tree-sitter-java
+ollama
