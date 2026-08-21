@@ -12,16 +12,30 @@ class CodeParsingService:
         repository_file: RepositoryFile,
     ) -> ParsedCode | None:
 
-        parser = CodeParserFactory.create(repository_file.language)
+        parser = CodeParserFactory.create(
+            repository_file.language
+        )
 
         if parser is None:
             return None
 
-        source_path = repository_root / repository_file.path
+        if repository_file.path.is_absolute():
+            source_path = repository_file.path
+        elif repository_file.path.exists():
+            source_path = repository_file.path
+        else:
+            source_path = repository_root / repository_file.path
 
         try:
-            source_code = source_path.read_text(encoding="utf-8")
+            source_code = source_path.read_text(
+                encoding="utf-8"
+            )
+
             return parser.parse(source_code)
 
-        except (OSError, UnicodeDecodeError, SyntaxError):
+        except (
+            OSError,
+            UnicodeDecodeError,
+            SyntaxError,
+        ):
             return None

@@ -3,11 +3,16 @@ from pathlib import Path
 from app.indexing.models import RepositoryFile
 from app.parsing.code_parsing_service import CodeParsingService
 
-def test_code_parsing_service_parses_java_file(tmp_path: Path):
-    source_file = tmp_path / "UserService.java"
+def test_code_parsing_service_parses_scanner_relative_path(
+    tmp_path: Path,
+):
+    repository_root = tmp_path / "sample_project"
+    repository_root.mkdir()
+
+    source_file = repository_root / "UserService.java"
 
     source_file.write_text(
-        """
+        """\
 public class UserService {
 
     public void createUser() {
@@ -29,7 +34,7 @@ public class UserService {
     service = CodeParsingService()
 
     result = service.parse_file(
-        tmp_path,
+        repository_root,
         repository_file,
     )
 
