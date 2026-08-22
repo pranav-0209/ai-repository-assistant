@@ -7,14 +7,19 @@ from app.indexing.language_detector import LanguageDetector
 from app.indexing.metadata_extractor import FileMetadataExtractor
 from app.indexing.repository_indexer import RepositoryIndexer
 from app.indexing.repository_scanner import RepositoryScanner
-from app.parsing.code_parsing_service import CodeParsingService
-from app.vectorstore.chroma_store import ChromaVectorStore
 from app.indexing.repository_vector_indexer import (
     RepositoryVectorIndexer,
 )
+from app.parsing.code_parsing_service import CodeParsingService
+from app.qa.qa_factory import create_repository_qa_service
+from app.vectorstore.chroma_store import ChromaVectorStore
 
 
-def main():
+REPOSITORY_PATH = "repositories/sample_project"
+CHROMA_PATH = "data/chroma"
+
+
+def create_vector_indexer() -> RepositoryVectorIndexer:
     scanner = RepositoryScanner()
 
     language_detector = LanguageDetector()
@@ -38,23 +43,53 @@ def main():
     embedding_service = EmbeddingService()
 
     vector_store = ChromaVectorStore(
-        "data/chroma"
+        CHROMA_PATH
     )
 
-    vector_indexer = RepositoryVectorIndexer(
+    return RepositoryVectorIndexer(
         repository_indexer,
         chunking_service,
         embedding_service,
         vector_store,
     )
 
+
+def main():
+    print("Indexing repository...")
+
+    vector_indexer = create_vector_indexer()
+
     chunk_count = vector_indexer.index(
-        "repositories/sample_project"
+        REPOSITORY_PATH
     )
 
     print(
         f"Indexed {chunk_count} code chunks."
     )
+
+    qa_service = create_repository_qa_service(
+        CHROMA_PATH
+    )
+
+    print()
+    print("Repository Assistant is ready.")
+    print("Type 'exit' to quit.")
+    print()
+
+    while True:
+        question = input("Question: ").strip()
+
+        if question.lower() == "exit":
+            print("Goodbye.")
+            break
+
+        if not question:
+            continue
+
+        print()
+        print("Answer:")
+        print(qa_service.answer(question))
+        print()
 
 
 if __name__ == "__main__":
